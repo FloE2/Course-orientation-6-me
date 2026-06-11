@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course d'orientation — Notation EPS</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f9f8f6;
+      --surface: #ffffff;
+      --surface2: #f2f1ee;
+      --border: #e2e0da;
+      --border-strong: #c8c6be;
+      --text: #1a1a18;
+      --text-muted: #6b6a65;
+      --text-faint: #9b9a94;
+      --accent: #2563eb;
+      --accent-light: #eff4ff;
+      --green-bg: #ecfdf5; --green-text: #065f46;
+      --amber-bg: #fffbeb; --amber-text: #92400e;
+      --red-bg: #fef2f2; --red-text: #991b1b;
+      --blue-bg: #eff6ff; --blue-text: #1e40af;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Header */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .header-left h1 {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .header-left p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .header-right {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .btn {
+      height: 34px;
+      padding: 0 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.12s;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--surface2); }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-danger { border-color: #fca5a5; color: #dc2626; }
+    .btn-danger:hover { background: var(--red-bg); }
+
+    /* Main layout */
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.5rem 3rem; }
+
+    /* Bareme card */
+    .bareme-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .bareme-item { display: flex; flex-direction: column; gap: 4px; }
+    .bareme-item label { font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    select, input[type="number"] {
+      height: 32px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 0 10px;
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text);
+    }
+    select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .formule-val {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      padding-top: 5px;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .tab {
+      height: 36px;
+      padding: 0 18px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.12s;
+    }
+    .tab:hover { background: var(--surface2); color: var(--text); }
+    .tab.active {
+      background: var(--text);
+      color: #fff;
+      border-color: var(--text);
+      font-weight: 500;
+    }
+    .tab-count {
+      font-size: 11px;
+      opacity: 0.65;
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 1.25rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+    }
+    .stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 500; }
+    .stat-val { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+
+    /* Table */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead { background: var(--surface2); }
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+    tr.dsp-row td { color: var(--text-muted); }
+
+    .td-name { font-weight: 500; }
+    .td-num { text-align: center; }
+
+    input.cell-input {
+      width: 70px;
+      height: 28px;
+      text-align: center;
+      font-size: 12px;
+      padding: 0 6px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      font-family: inherit;
+    }
+    input.cell-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    input.cell-input.narrow { width: 55px; }
+
+    /* Note badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      text-align: center;
+      min-width: 48px;
+    }
+    .badge-high { background: var(--green-bg); color: var(--green-text); }
+    .badge-mid  { background: var(--amber-bg); color: var(--amber-text); }
+    .badge-low  { background: var(--red-bg);   color: var(--red-text);   }
+    .badge-dsp  { background: var(--blue-bg);  color: var(--blue-text);  }
+
+    /* Checkbox custom */
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* Delete button */
+    .del-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-faint);
+      font-size: 16px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      line-height: 1;
+      font-family: inherit;
+    }
+    .del-btn:hover { background: var(--red-bg); color: var(--red-text); }
+
+    /* Bottom bar */
+    .bottom-bar {
+      margin-top: 1rem;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    input.name-input {
+      height: 34px;
+      width: 200px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 0 10px;
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text);
+    }
+    input.name-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    /* Print */
+    @media print {
+      header .header-right, .bottom-bar, .del-btn, input.cell-input, input[type="checkbox"], .tabs { display: none !important; }
+      body { background: white; }
+      .table-wrap { border: 1px solid #ccc; }
+      .bareme-card { border: 1px solid #ccc; }
+      main { padding: 0.5rem; }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      header { padding: 1rem; }
+      main { padding: 1rem 1rem 2rem; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>🧭 Course d'orientation — Notation EPS</h1>
+    <p>Gestion des notes par classe · barème commun</p>
+  </div>
+  <div class="header-right">
+    <button class="btn" onclick="window.print()">🖨️ Imprimer</button>
+    <button class="btn" onclick="exportCSV()">📥 Exporter CSV</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- Barème -->
+  <div class="bareme-card">
+    <div class="bareme-item">
+      <label for="bareme">Barème</label>
+      <select id="bareme" onchange="recalcAll()">
+        <option value="bienveillant">Bienveillant : −0,25 pt/min de retard</option>
+        <option value="standard">Standard : −5 pts balises/min de retard</option>
+        <option value="strict">Strict : −0,5 pt de note/min de retard</option>
+      </select>
+    </div>
+    <div class="bareme-item">
+      <label for="totalPts">Total points possibles</label>
+      <input type="number" id="totalPts" value="275" min="1" style="width:85px" oninput="recalcAll()">
+    </div>
+    <div class="bareme-item">
+      <label>Formule active</label>
+      <div class="formule-val" id="formuleText">—</div>
+    </div>
+    <div class="bareme-item" style="margin-left:auto;">
+      <label>Retard</label>
+      <div class="formule-val" id="retardInfo" style="color:#6b6a65; font-family:inherit; font-size:12px;">1 min = −0,25 pt</div>
+    </div>
+  </div>
+
+  <!-- Onglets classes -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card"><div class="stat-label">Élèves notés</div><div class="stat-val" id="sCount">—</div></div>
+    <div class="stat-card"><div class="stat-label">Moyenne classe</div><div class="stat-val" id="sMoy">—</div></div>
+    <div class="stat-card"><div class="stat-label">Meilleure note</div><div class="stat-val" id="sMax">—</div></div>
+    <div class="stat-card"><div class="stat-label">Note la plus basse</div><div class="stat-val" id="sMin">—</div></div>
+  </div>
+
+  <!-- Tableau -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:220px">Élève</th>
+          <th style="width:90px" class="td-num">Points balises</th>
+          <th style="width:90px" class="td-num">Retard (min)</th>
+          <th style="width:100px" class="td-num">Note /20</th>
+          <th style="width:60px" class="td-num">DSP</th>
+          <th style="width:36px"></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Barre d'ajout -->
+  <div class="bottom-bar">
+    <input type="text" class="name-input" id="newName" placeholder="Nom Prénom" onkeydown="if(event.key==='Enter')addEleve()">
+    <button class="btn" onclick="addEleve()">+ Ajouter élève</button>
+  </div>
+
+</main>
+
+<script>
+// ── Données initiales ──────────────────────────────────────────────
+const classes = {
+  "6ème A": [],
+  "6ème B": [
+    {nom:"BERROUANE HAVEZ Dario", pts:225, retard:0, dsp:false},
+    {nom:"CAIROLI Jules",          pts:0,   retard:0, dsp:true},
+    {nom:"CHILA Giacomo",          pts:275, retard:0, dsp:false},
+    {nom:"DEKICHE Massim",         pts:135, retard:0, dsp:false},
+    {nom:"DENDOUNE-ROUSSET Aug.",  pts:250, retard:0, dsp:false},
+    {nom:"DIABATE Balla",          pts:175, retard:3, dsp:false},
+    {nom:"DORE Lou",               pts:200, retard:23,dsp:false},
+    {nom:"DRIOUCHE Nahel",         pts:215, retard:22,dsp:false},
+    {nom:"EYMAR Livia",            pts:265, retard:0, dsp:false},
+    {nom:"FAYE Morgan",            pts:215, retard:0, dsp:false},
+    {nom:"FIANDJEU NDEMEN Millie", pts:195, retard:21,dsp:false},
+    {nom:"GALAN Louise",           pts:220, retard:5, dsp:false},
+    {nom:"GONZALEZ LEGO Emma",     pts:220, retard:14,dsp:false},
+    {nom:"HADIDJA Ahmed",          pts:185, retard:19,dsp:false},
+    {nom:"LAUGLÉ Charlie",         pts:275, retard:4, dsp:false},
+    {nom:"LY Elena",               pts:235, retard:4, dsp:false},
+    {nom:"MACHEBOEUF Océane",      pts:270, retard:4, dsp:false},
+    {nom:"MESSIER LEY Lilian",     pts:235, retard:4, dsp:false},
+    {nom:"MOREAU Lucas",           pts:135, retard:0, dsp:false},
+    {nom:"PRIESTER Abel",          pts:0,   retard:0, dsp:true},
+    {nom:"ROUGIER Hugo",           pts:185, retard:14,dsp:false},
+    {nom:"SEMINOR Noa",            pts:255, retard:12,dsp:false},
+    {nom:"SIBERT Raphael",         pts:255, retard:0, dsp:false},
+    {nom:"SILVA VARZIELA Leonor",  pts:255, retard:10,dsp:false},
+    {nom:"TENEGUIN Manon",         pts:225, retard:17,dsp:false},
+    {nom:"WAISMAN Margot",         pts:255, retard:0, dsp:false},
+  ],
+  "6ème C": []
+};
+
+let currentClass = "6ème B";
+
+// ── Calcul note ────────────────────────────────────────────────────
+function calcNote(pts, retard, dsp, total, bareme) {
+  if (dsp) return 20;
+  const p = Number(pts), r = Number(retard), t = Number(total);
+  if (bareme === 'bienveillant') return Math.max(0, Math.min(20, (p / t * 20) - 0.25 * r));
+  if (bareme === 'standard')     return Math.max(0, Math.min(20, Math.max(0, p - 5 * r) / t * 20));
+  return Math.max(0, Math.min(20, (p / t * 20) - 0.5 * r));
+}
+
+function badgeClass(n, dsp) {
+  if (dsp)    return 'badge-dsp';
+  if (n >= 14) return 'badge-high';
+  if (n >= 10) return 'badge-mid';
+  return 'badge-low';
+}
+
+// ── Rendu onglets ──────────────────────────────────────────────────
+function renderTabs() {
+  const el = document.getElementById('tabs');
+  el.innerHTML = '';
+  Object.keys(classes).forEach(cls => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cls === currentClass ? ' active' : '');
+    btn.innerHTML = cls + ' <span class="tab-count">(' + classes[cls].length + ')</span>';
+    btn.onclick = () => { currentClass = cls; renderTabs(); renderTable(); };
+    el.appendChild(btn);
+  });
+}
+
+// ── Rendu tableau ──────────────────────────────────────────────────
+function renderTable() {
+  const bareme = document.getElementById('bareme').value;
+  const total  = parseInt(document.getElementById('totalPts').value) || 275;
+  const eleves = classes[currentClass];
+
+  // Formule affichée
+  const formules = {
+    bienveillant: `note = (pts ÷ ${total}) × 20 − 0,25 × retard`,
+    standard:     `note = (pts − 5×retard) ÷ ${total} × 20`,
+    strict:       `note = (pts ÷ ${total}) × 20 − 0,5 × retard`
+  };
+  const retardInfo = {
+    bienveillant: '1 min = −0,25 pt',
+    standard:     '1 min = −5 pts balises',
+    strict:       '1 min = −0,5 pt'
+  };
+  document.getElementById('formuleText').textContent = formules[bareme];
+  document.getElementById('retardInfo').textContent  = retardInfo[bareme];
+
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  const notes = [];
+
+  eleves.forEach((e, i) => {
+    const note = calcNote(e.pts, e.retard, e.dsp, total, bareme);
+    if (!e.dsp) notes.push(note);
+    const bc = badgeClass(note, e.dsp);
+
+    const tr = document.createElement('tr');
+    if (e.dsp) tr.className = 'dsp-row';
+
+    tr.innerHTML = `
+      <td class="td-name">${escHtml(e.nom)}</td>
+      <td class="td-num">
+        ${e.dsp
+          ? '<em style="font-size:12px;color:#9b9a94">parcours adapté</em>'
+          : `<input class="cell-input" type="number" min="0" max="${total}" value="${e.pts}"
+               onchange="classes[currentClass][${i}].pts=parseInt(this.value)||0; renderTable()">`}
+      </td>
+      <td class="td-num">
+        ${e.dsp
+          ? '<span style="color:#9b9a94">—</span>'
+          : `<input class="cell-input narrow" type="number" min="0" max="99" value="${e.retard}"
+               onchange="classes[currentClass][${i}].retard=parseInt(this.value)||0; renderTable()">`}
+      </td>
+      <td class="td-num">
+        <span class="badge ${bc}">${e.dsp ? '20,0' : note.toFixed(1)}</span>
+      </td>
+      <td class="td-num">
+        <input type="checkbox" ${e.dsp ? 'checked' : ''}
+          onchange="classes[currentClass][${i}].dsp=this.checked; renderTable()">
+      </td>
+      <td>
+        <button class="del-btn" title="Supprimer"
+          onclick="classes[currentClass].splice(${i},1); renderTabs(); renderTable()">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Stats
+  if (notes.length > 0) {
+    const moy = notes.reduce((a, b) => a + b, 0) / notes.length;
+    document.getElementById('sCount').textContent = notes.length;
+    document.getElementById('sMoy').textContent   = moy.toFixed(2);
+    document.getElementById('sMax').textContent   = Math.max(...notes).toFixed(1);
+    document.getElementById('sMin').textContent   = Math.min(...notes).toFixed(1);
+  } else {
+    ['sCount','sMoy','sMax','sMin'].forEach(id => document.getElementById(id).textContent = '—');
+  }
+}
+
+function recalcAll() { renderTable(); }
+
+// ── Ajouter élève ──────────────────────────────────────────────────
+function addEleve() {
+  const input = document.getElementById('newName');
+  const nom = input.value.trim();
+  if (!nom) return;
+  classes[currentClass].push({ nom, pts: 0, retard: 0, dsp: false });
+  input.value = '';
+  renderTabs();
+  renderTable();
+}
+
+// ── Export CSV ─────────────────────────────────────────────────────
+function exportCSV() {
+  const bareme = document.getElementById('bareme').value;
+  const total  = parseInt(document.getElementById('totalPts').value) || 275;
+  let csv = 'Classe,Élève,Points,Retard (min),Note /20,DSP\n';
+
+  Object.keys(classes).forEach(cls => {
+    classes[cls].forEach(e => {
+      const note = calcNote(e.pts, e.retard, e.dsp, total, bareme);
+      csv += [
+        cls,
+        `"${e.nom}"`,
+        e.dsp ? 'DSP' : e.pts,
+        e.dsp ? '' : e.retard,
+        e.dsp ? '20.0' : note.toFixed(1),
+        e.dsp ? 'Oui' : 'Non'
+      ].join(',') + '\n';
+    });
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'notes_course_orientation.csv';
+  a.click();
+}
+
+// ── Utilitaire sécurité XSS ────────────────────────────────────────
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+renderTabs();
+renderTable();
+</script>
+</body>
+</html>
