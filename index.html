@@ -498,7 +498,7 @@ const DEFAULT_CLASSES = {
   "6ème A": [],
   "6ème B": [
     {nom:"BERROUANE HAVEZ Dario",   pts:225, retard:0,  dsp:false},
-    {nom:"CAIROLI Jules",            pts:0,   retard:0,  dsp:true},
+    {nom:"CAIROLI Jules",            pts:0,   retard:0,  dsp:true,  noteDsp:20},
     {nom:"CHILA Giacomo",            pts:275, retard:0,  dsp:false},
     {nom:"DEKICHE Massim",           pts:135, retard:0,  dsp:false},
     {nom:"DENDOUNE-ROUSSET Aug.",    pts:250, retard:0,  dsp:false},
@@ -516,7 +516,7 @@ const DEFAULT_CLASSES = {
     {nom:"MACHEBOEUF Océane",        pts:270, retard:4,  dsp:false},
     {nom:"MESSIER LEY Lilian",       pts:235, retard:4,  dsp:false},
     {nom:"MOREAU Lucas",             pts:135, retard:0,  dsp:false},
-    {nom:"PRIESTER Abel",            pts:0,   retard:0,  dsp:true},
+    {nom:"PRIESTER Abel",            pts:0,   retard:0,  dsp:true,  noteDsp:20},
     {nom:"ROUGIER Hugo",             pts:185, retard:14, dsp:false},
     {nom:"SEMINOR Noa",              pts:255, retard:12, dsp:false},
     {nom:"SIBERT Raphael",           pts:255, retard:0,  dsp:false},
@@ -660,8 +660,8 @@ function showPage(id, btn) {
 }
 
 /* ── CALCULS ─────────────────────────────────────── */
-function calcNote(pts, retard, dsp, total, bareme) {
-  if (dsp) return 20;
+function calcNote(pts, retard, dsp, total, bareme, noteDsp) {
+  if (dsp) return (noteDsp !== undefined && noteDsp !== null && noteDsp !== '') ? +noteDsp : null;
   const p = +pts, r = +retard, t = +total;
   if (bareme === 'bienveillant') return Math.max(0, Math.min(20, p/t*20 - 0.25*r));
   if (bareme === 'standard')     return Math.max(0, Math.min(20, Math.max(0, p - 5*r)/t*20));
@@ -723,16 +723,31 @@ function renderTable() {
   const notes = [];
 
   eleves.forEach((e, i) => {
-    const note = calcNote(e.pts, e.retard, e.dsp, total, bareme);
-    if (!e.dsp) notes.push(note);
-    const bc = getBadgeClass(note, e.dsp);
+    const note = calcNote(e.pts, e.retard, e.dsp, total, bareme, e.noteDsp);
+    if (!e.dsp && note !== null) notes.push(note);
+    const bc = e.dsp
+      ? (note !== null ? getBadgeClass(note, false) : 'badge-dsp')
+      : getBadgeClass(note, false);
     const tr = document.createElement('tr');
     if (e.dsp) tr.className = 'dsp-row';
+
+    const noteCellDsp = `
+      <input class="cell-input" type="number" min="0" max="20" step="0.1"
+        placeholder="—"
+        value="${e.noteDsp !== undefined && e.noteDsp !== '' ? e.noteDsp : ''}"
+        style="width:60px;background:#eff6ff;border-color:#93c5fd"
+        onchange="classes[currentClass][${i}].noteDsp=this.value===''?'':parseFloat(this.value);renderTable()"
+        title="Note manuelle pour élève dispensé">`;
+
+    const noteCell = e.dsp
+      ? noteCellDsp
+      : `<span class="badge ${bc}">${note !== null ? note.toFixed(1) : '—'}</span>`;
+
     tr.innerHTML = `
       <td style="font-weight:500">${esc(e.nom)}</td>
       <td class="td-num">
         ${e.dsp
-          ? '<em style="font-size:12px;color:var(--text-faint)">parcours adapté</em>'
+          ? '<em style="font-size:11px;color:var(--text-faint)">parcours adapté</em>'
           : `<input class="cell-input" type="number" min="0" max="${total}" value="${e.pts}"
                onchange="classes[currentClass][${i}].pts=parseInt(this.value)||0;renderTable()">`}
       </td>
@@ -742,12 +757,10 @@ function renderTable() {
           : `<input class="cell-input narrow" type="number" min="0" max="99" value="${e.retard}"
                onchange="classes[currentClass][${i}].retard=parseInt(this.value)||0;renderTable()">`}
       </td>
-      <td class="td-num">
-        <span class="badge ${bc}">${e.dsp ? '20,0' : note.toFixed(1)}</span>
-      </td>
+      <td class="td-num">${noteCell}</td>
       <td class="td-num">
         <input type="checkbox" ${e.dsp ? 'checked' : ''}
-          onchange="classes[currentClass][${i}].dsp=this.checked;renderTable()">
+          onchange="classes[currentClass][${i}].dsp=this.checked;if(this.checked)classes[currentClass][${i}].noteDsp='';renderTable()">
       </td>
       <td>
         <button class="btn btn-sm" onclick="allerSaisie('${currentClass}',${i})" title="Ouvrir le coupon de cet élève">
@@ -940,7 +953,7 @@ function renderMiniTable() {
   classes[cls].forEach((e, i) => {
     if (e.pts === 0 && e.retard === 0 && !e.dsp) return;
     if (e.dsp) return;
-    const note = calcNote(e.pts, e.retard, false, total, bareme);
+    const note = calcNote(e.pts, e.retard, false, total, bareme, e.noteDsp);
     const bc = getBadgeClass(note, false);
     count++;
     const tr = document.createElement('tr');
@@ -969,8 +982,8 @@ function exportCSV() {
   let csv = '\uFEFFClasse,Élève,Points,Retard (min),Note /20,DSP\n';
   Object.keys(classes).forEach(cls => {
     classes[cls].forEach(e => {
-      const note = calcNote(e.pts, e.retard, e.dsp, total, bareme);
-      csv += [cls, `"${e.nom}"`, e.dsp?'DSP':e.pts, e.dsp?'':e.retard, e.dsp?'20.0':note.toFixed(1), e.dsp?'Oui':'Non'].join(',') + '\n';
+      const note = calcNote(e.pts, e.retard, e.dsp, total, bareme, e.noteDsp);
+      csv += [cls, `"${e.nom}"`, e.dsp?'DSP':e.pts, e.dsp?'':e.retard, note!==null?note.toFixed(1):'—', e.dsp?'Oui':'Non'].join(',') + '\n';
     });
   });
   const a = document.createElement('a');
