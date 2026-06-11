@@ -80,8 +80,16 @@ main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
 .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
 .btn-danger { border-color: #fca5a5; color: #dc2626; }
 .btn-danger:hover { background: var(--red-bg); }
-.btn-green { background: #059669; color: #fff; border-color: #059669; }
-.btn-green:hover { background: #047857; }
+.btn-save {
+  background: #059669; color: #fff; border-color: #059669;
+  font-weight: 600;
+}
+.btn-save:hover { background: #047857; }
+.btn-save.dirty { animation: pulse-save 1.5s infinite; }
+@keyframes pulse-save {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(5,150,105,0.4); }
+  50%       { box-shadow: 0 0 0 5px rgba(5,150,105,0); }
+}
 
 /* ── SECTION TITLE ── */
 .section-title {
@@ -283,8 +291,12 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent);
     <button class="nav-tab" onclick="showPage('saisie', this)">✏️ Saisie coupons</button>
   </div>
   <div class="nav-right">
+    <span id="save-indicator" style="font-size:12px;color:#059669;opacity:0;transition:opacity .4s;white-space:nowrap">✓ Sauvegardé</span>
+    <span id="unsaved-indicator" style="font-size:12px;color:#d97706;opacity:0;transition:opacity .2s;white-space:nowrap">● Modifications non enregistrées</span>
+    <button class="btn btn-save" id="btn-save" onclick="manualSave()">💾 Enregistrer</button>
     <button class="btn" onclick="exportCSV()">⬇ Exporter CSV</button>
     <button class="btn" onclick="window.print()">🖨 Imprimer</button>
+    <button class="btn btn-danger" onclick="resetAllData()" title="Remettre les données par défaut">↺ Reset</button>
   </div>
 </nav>
 
@@ -478,8 +490,11 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent);
      SCRIPT
 ════════════════════════════════════════════════════ -->
 <script>
-/* ── DONNÉES ─────────────────────────────────────── */
-const classes = {
+/* ── LOCALSTORAGE ────────────────────────────────── */
+const LS_KEY = 'co_eps_data';
+const LS_CFG = 'co_eps_cfg';
+
+const DEFAULT_CLASSES = {
   "6ème A": [],
   "6ème B": [
     {nom:"BERROUANE HAVEZ Dario",   pts:225, retard:0,  dsp:false},
@@ -511,6 +526,90 @@ const classes = {
   ],
   "6ème C": []
 };
+
+let isDirty = false;
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_CLASSES));
+  } catch(e) { return JSON.parse(JSON.stringify(DEFAULT_CLASSES)); }
+}
+
+/* Appelé à chaque modification — marque comme non sauvegardé */
+function saveData() {
+  markDirty();
+}
+
+/* Sauvegarde manuelle via le bouton 💾 */
+function manualSave() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(classes));
+    saveCfg();
+  } catch(e) {
+    alert('❌ Erreur lors de la sauvegarde. Vérifiez que votre navigateur autorise le stockage local.');
+    return;
+  }
+  markClean();
+  const el = document.getElementById('save-indicator');
+  if (el) {
+    el.style.opacity = '1';
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.style.opacity = '0'; }, 2500);
+  }
+}
+
+function markDirty() {
+  isDirty = true;
+  const btn = document.getElementById('btn-save');
+  const ind = document.getElementById('unsaved-indicator');
+  if (btn) btn.classList.add('dirty');
+  if (ind) ind.style.opacity = '1';
+}
+
+function markClean() {
+  isDirty = false;
+  const btn = document.getElementById('btn-save');
+  const ind = document.getElementById('unsaved-indicator');
+  if (btn) btn.classList.remove('dirty');
+  if (ind) ind.style.opacity = '0';
+}
+
+function loadCfg() {
+  try {
+    const raw = localStorage.getItem(LS_CFG);
+    return raw ? JSON.parse(raw) : {};
+  } catch(e) { return {}; }
+}
+
+function saveCfg() {
+  try {
+    localStorage.setItem(LS_CFG, JSON.stringify({
+      bareme: document.getElementById('bareme').value,
+      totalPts: document.getElementById('totalPts').value,
+      currentClass
+    }));
+  } catch(e) {}
+}
+
+function resetAllData() {
+  if (!confirm('⚠️ Remettre toutes les données par défaut ?\n\nCela effacera toutes les notes saisies.')) return;
+  try { localStorage.removeItem(LS_KEY); localStorage.removeItem(LS_CFG); } catch(e) {}
+  location.reload();
+}
+
+/* Alerte si on quitte avec des données non sauvegardées */
+window.addEventListener('beforeunload', function(e) {
+  if (isDirty) {
+    const msg = 'Des modifications ne sont pas encore enregistrées (cliquez 💾 Enregistrer). Quitter quand même ?';
+    e.preventDefault();
+    e.returnValue = msg;
+    return msg;
+  }
+});
+
+/* ── DONNÉES ─────────────────────────────────────── */
+const classes = loadData();
 
 const BALISES = [
   {n:1,  poste:78, pts:20}, {n:2,  poste:60, pts:20},
@@ -652,6 +751,7 @@ function renderTable() {
   } else {
     ['sCount','sMoy','sMax','sMin'].forEach(id => document.getElementById(id).textContent = '—');
   }
+  saveData(); saveCfg();
 }
 
 function addEleve() {
@@ -663,6 +763,7 @@ function addEleve() {
   renderClassTabs();
   renderTable();
   updateEleveSelect();
+  saveData();
 }
 
 /* Raccourci depuis le tableau → page saisie */
@@ -788,6 +889,12 @@ function validerCoupon() {
 
   classes[cls][idx].pts    = pts;
   classes[cls][idx].retard = retardCourant;
+  saveData();
+  /* Sauvegarde automatique immédiate après validation d'un coupon */
+  try { localStorage.setItem(LS_KEY, JSON.stringify(classes)); markClean();
+    const el = document.getElementById('save-indicator');
+    if (el) { el.style.opacity='1'; clearTimeout(el._t); el._t=setTimeout(()=>{el.style.opacity='0';},2000); }
+  } catch(e) {}
 
   renderTable();
   renderMiniTable();
@@ -853,6 +960,12 @@ function exportCSV() {
 }
 
 /* ── INIT ───────────────────────────────────────── */
+(function restoreCfg() {
+  const cfg = loadCfg();
+  if (cfg.bareme) document.getElementById('bareme').value = cfg.bareme;
+  if (cfg.totalPts) document.getElementById('totalPts').value = cfg.totalPts;
+  if (cfg.currentClass && classes[cfg.currentClass]) currentClass = cfg.currentClass;
+})();
 renderClassTabs();
 renderTable();
 buildGrid();
